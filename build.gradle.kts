@@ -1,8 +1,6 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 plugins {
-    id ("java-library")
-    id ("maven-publish")
+    id("java-library")
+    id("maven-publish")
 }
 
 group = "dev.booky"
@@ -18,11 +16,23 @@ dependencies {
     annotationProcessor("com.velocitypowered:velocity-api:1.1.8")
 }
 
+java {
+    withSourcesJar()
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+publishing {
+    publications.create<MavenPublication>("maven") {
+        artifactId = project.name.toLowerCase()
+        from(components["java"])
+    }
+}
+
 tasks {
     val processSources = create<Sync>("processSources") {
         from(sourceSets.main.get().java.srcDirs)
         inputs.property("version", project.version)
-        filter<ReplaceTokens>("version" to project.version)
+        filter<org.apache.tools.ant.filters.ReplaceTokens>("version" to project.version)
         into("$buildDir/src")
     }
 
