@@ -31,12 +31,18 @@ publishing {
 tasks {
     val processSources = create<Sync>("processSources") {
         from(sourceSets.main.get().java.srcDirs)
+
+        sourceSets.main.get().java.srcDirs.forEach(inputs::dir)
         inputs.property("version", project.version)
-        filter<org.apache.tools.ant.filters.ReplaceTokens>("version" to project.version)
+
+        filesMatching("**/*.java") {
+            expand("version" to project.version)
+        }
         into("$buildDir/src")
     }
 
     compileJava {
-        source(processSources.outputs)
+        dependsOn(processSources)
+        source = fileTree("$buildDir/src")
     }
 }

@@ -1,11 +1,11 @@
-package tk.booky.velostaffchat.listener;
+package dev.booky.staff.listener;
 // Created by booky10 in VeloStaffChat (16:32 19.06.21)
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
-import tk.booky.velostaffchat.VeloStaffChat;
+import dev.booky.staff.StaffChatManager;
 
-public class ChatListener {
+public record ChatListener(StaffChatManager manager) {
 
     @Subscribe
     public void onChat(PlayerChatEvent event) {
@@ -14,11 +14,11 @@ public class ChatListener {
         String message = event.getMessage();
         if (message.startsWith("#")) {
             message = message.substring(1).trim();
-        } else if (!VeloStaffChat.getMain().getManager().hasPermanentStaffChat(event.getPlayer().getUniqueId())) {
+        } else if (!manager.toggledStaffChat(event.getPlayer().getUniqueId())) {
             return;
         }
 
         event.setResult(PlayerChatEvent.ChatResult.denied());
-        VeloStaffChat.getMain().getManager().tryStaffMessage(event.getPlayer(), message);
+        manager.messageStaff(event.getPlayer(), message);
     }
 }
