@@ -8,15 +8,19 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import dev.booky.staff.StaffChatManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.jspecify.annotations.NullMarked;
 
 import static dev.booky.staff.util.StaffChatConstants.STAFF_NOTIFY_PERMISSION;
 
 @NullMarked
+@Singleton
 public class NotifyListener {
 
     private final StaffChatManager manager;
 
+    @Inject
     public NotifyListener(StaffChatManager manager) {
         this.manager = manager;
     }

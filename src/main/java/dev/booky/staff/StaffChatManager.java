@@ -7,15 +7,16 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static dev.booky.staff.util.StaffChatConstants.STAFF_SEE_PERMISSION;
 import static net.kyori.adventure.text.Component.space;
@@ -27,6 +28,7 @@ import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
 @NullMarked
+@Singleton
 public final class StaffChatManager {
 
     private static final String FALLBACK_SERVER_NAME = "limbo";
@@ -39,7 +41,8 @@ public final class StaffChatManager {
             .append(space())
             .build();
 
-    private final Set<UUID> toggledChat = new HashSet<>();
+    private final Set<UUID> toggledChat = ConcurrentHashMap.newKeySet();
+
     private final ProxyServer server;
 
     @Inject

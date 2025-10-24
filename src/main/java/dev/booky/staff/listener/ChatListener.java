@@ -4,16 +4,20 @@ package dev.booky.staff.listener;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import dev.booky.staff.StaffChatManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.jspecify.annotations.NullMarked;
 
 import static dev.booky.staff.util.StaffChatConstants.MESSAGE_PREFIX;
 import static dev.booky.staff.util.StaffChatConstants.STAFF_USE_PERMISSION;
 
 @NullMarked
+@Singleton
 public final class ChatListener {
 
     private final StaffChatManager manager;
 
+    @Inject
     public ChatListener(StaffChatManager manager) {
         this.manager = manager;
     }
