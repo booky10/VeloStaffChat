@@ -9,3 +9,12 @@ A simple Minecraft Velocity proxy plugin to allow staff members to communicate p
 ### Usage
 
 Use `/staff <message>` or simple write `# <message>` in the chat to send staff-only messages.
+
+### Permissions
+
+| Permission      | Description                                                                                             |
+|-----------------|---------------------------------------------------------------------------------------------------------|
+| `staff.chat`    | Allows players to write messages in staff chat                                                          |
+| `staff.see`     | Allows players to see messages from staff chat                                                          |
+| `staff.notify`  | Will broadcast a message to staff chat if a player with this permission switches servers or joins/quits |
+| `staff.command` | Allows access to the `/staff` command                                                                   |
