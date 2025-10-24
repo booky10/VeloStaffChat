@@ -20,7 +20,7 @@ public record NotifyListener(StaffChatManager manager) {
         String from = event.getPreviousServer().map(RegisteredServer::getServerInfo).map(ServerInfo::getName).orElse(null);
         String to = event.getServer().getServerInfo().getName();
 
-        manager.switchedServers(event.getPlayer().getUsername(), from, to);
+        manager.sendServerSwitch(event.getPlayer().getUsername(), from, to);
     }
 
     @Subscribe
@@ -29,6 +29,6 @@ public record NotifyListener(StaffChatManager manager) {
 
         Optional<ServerConnection> currServer = event.getPlayer().getCurrentServer();
         String name = currServer.map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse(null);
-        manager.switchedServers(event.getPlayer().getUsername(), name, null);
+        manager.sendServerSwitch(event.getPlayer().getUsername(), name, null);
     }
 }

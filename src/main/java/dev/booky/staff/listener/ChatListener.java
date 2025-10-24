@@ -14,11 +14,11 @@ public record ChatListener(StaffChatManager manager) {
         String message = event.getMessage();
         if (message.startsWith("#")) {
             message = message.substring(1).trim();
-        } else if (!manager.toggledStaffChat(event.getPlayer().getUniqueId())) {
+        } else if (!manager.hasToggledStaffChat(event.getPlayer().getUniqueId())) {
             return;
         }
 
         event.setResult(PlayerChatEvent.ChatResult.denied());
-        manager.messageStaff(event.getPlayer(), message);
+        manager.sendStaffMessage(event.getPlayer(), message);
     }
 }

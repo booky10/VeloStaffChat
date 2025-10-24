@@ -8,20 +8,34 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class StaffChatManager {
+import static dev.booky.staff.util.PermissionConstants.STAFF_SEE_PERMISSION;
+import static net.kyori.adventure.text.Component.space;
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.NamedTextColor.BLUE;
+import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
+import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
+import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
-    private static final Component PREFIX = Component.text().color(NamedTextColor.WHITE)
-            .append(Component.text('[', NamedTextColor.GRAY))
-            .append(Component.text("Staff", TextColor.color(0x216844)))
-            .append(Component.text(']', NamedTextColor.GRAY))
-            .append(Component.space())
+@NullMarked
+public final class StaffChatManager {
+
+    private static final String FALLBACK_SERVER_NAME = "limbo";
+    private static final String FALLBACK_USER_NAME = "console";
+
+    private static final Component PREFIX = text().color(WHITE)
+            .append(text('[', GRAY))
+            .append(text("Staff", TextColor.color(0x216844)))
+            .append(text(']', GRAY))
+            .append(space())
             .build();
 
     private final Set<UUID> toggledChat = new HashSet<>();
@@ -32,70 +46,90 @@ public class StaffChatManager {
     }
 
     public boolean toggleStaffChat(UUID uniqueId) {
-        if (toggledChat.add(uniqueId)) {
+        if (this.toggledChat.add(uniqueId)) {
             return true;
         }
-
-        toggledChat.remove(uniqueId);
+        this.toggledChat.remove(uniqueId);
         return false;
     }
 
-    public boolean toggledStaffChat(UUID uniqueId) {
-        return toggledChat.contains(uniqueId);
+    public boolean hasToggledStaffChat(UUID uniqueId) {
+        return this.toggledChat.contains(uniqueId);
     }
 
-    public void switchedServers(String player, String from, String to) {
-        if (from == null && to == null) return;
+    public void sendServerSwitch(String player, @Nullable String from, @Nullable String to) {
+        if (from == null && to == null) {
+            return;
+        }
 
-        TextComponent.Builder builder = Component.text().color(NamedTextColor.WHITE);
-        builder.append(PREFIX);
+        TextComponent.Builder builder = text().color(WHITE).append(PREFIX);
 
+        // if from is null, then this is a player join: [Staff] +Notch (lobby1)
         if (from == null) {
-            builder.append(Component.text('+', NamedTextColor.GREEN));
-            builder.append(Component.text(player));
-            messageStaff(builder.build());
+            this.sendStaffMessage(builder
+                    .append(text('+', GREEN))
+                    .append(text(player))
+                    .append(text(" (", GRAY))
+                    .append(text(to))
+                    .append(text(')', GRAY))
+                    .build());
             return;
         }
 
+        // if to is null, then this is a player quit: [Staff] -Notch (lobby42)
         if (to == null) {
-            builder.append(Component.text('-', NamedTextColor.RED));
-            builder.append(Component.text(player));
-            messageStaff(builder.build());
+            this.sendStaffMessage(builder
+                    .append(text('-', RED))
+                    .append(text(player))
+                    .append(text(" (", GRAY))
+                    .append(text(from))
+                    .append(text(')', GRAY))
+                    .build());
             return;
         }
 
-        builder.append(Component.text(from));
-        builder.append(Component.text(" -> ", NamedTextColor.GRAY));
-        builder.append(Component.text(to));
-        builder.append(Component.text(" (", NamedTextColor.GRAY));
-        builder.append(Component.text(player));
-        builder.append(Component.text(')', NamedTextColor.GRAY));
-        messageStaff(builder.build());
+        // this is a server switch: [Staff] Notch: lobby1 -> lobby42
+        this.sendStaffMessage(builder
+                .append(text(player + ": " + from))
+                .append(text(" -> ", GRAY))
+                .append(text(to))
+                .build());
     }
 
-    public void messageStaff(CommandSource source, String message) {
-        String server = !(source instanceof Player player) ? "limbo" :
-                player.getCurrentServer().map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse("limbo");
-        String name = source instanceof Player player ? player.getUsername() : "console";
-        messageStaff(name, server, message);
+    public void sendStaffMessage(CommandSource source, String message) {
+        String server;
+        if (source instanceof Player player) {
+            server = player.getCurrentServer()
+                    .map(ServerConnection::getServerInfo)
+                    .map(ServerInfo::getName)
+                    .orElse(FALLBACK_SERVER_NAME);
+        } else {
+            server = FALLBACK_SERVER_NAME;
+        }
+        String name = source instanceof Player player ? player.getUsername() : FALLBACK_USER_NAME;
+        this.sendStaffMessage(name, server, message);
     }
 
-    public void messageStaff(String name, String server, String message) {
-        TextComponent.Builder builder = Component.text().color(NamedTextColor.WHITE);
-        builder.append(PREFIX);
-        builder.append(Component.text('<'));
-        builder.append(Component.text(name, NamedTextColor.BLUE));
-        builder.append(Component.text('@'));
-        builder.append(Component.text(server, NamedTextColor.BLUE));
-        builder.append(Component.text("> " + message));
-        messageStaff(builder.build());
+    public void sendStaffMessage(String username, String server, String message) {
+        // [Staff] <Notch@lobby42> Hello World!
+        this.sendStaffMessage(text().color(WHITE)
+                .append(PREFIX)
+                .append(text('<'))
+                .append(text(username, BLUE))
+                .append(text('@'))
+                .append(text(server, BLUE))
+                .append(text("> " + message))
+                .build());
     }
 
-    public void messageStaff(Component message) {
-        server.getConsoleCommandSource().sendMessage(message);
-        for (Player player : server.getAllPlayers()) {
-            if (!player.hasPermission("staff.see")) continue;
-            player.sendMessage(message);
+    public void sendStaffMessage(Component message) {
+        // always print to console
+        this.server.getConsoleCommandSource().sendMessage(message);
+
+        for (Player player : this.server.getAllPlayers()) {
+            if (player.hasPermission(STAFF_SEE_PERMISSION)) {
+                player.sendMessage(message);
+            }
         }
     }
 }

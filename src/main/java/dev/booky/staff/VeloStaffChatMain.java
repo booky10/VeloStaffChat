@@ -49,7 +49,7 @@ public class VeloStaffChatMain {
                         }))
                 .then(RequiredArgumentBuilder.<CommandSource, String>argument("text", StringArgumentType.greedyString())
                         .executes(context -> {
-                            manager.messageStaff(context.getSource(), StringArgumentType.getString(context, "text"));
+                            manager.sendStaffMessage(context.getSource(), StringArgumentType.getString(context, "text"));
                             return 1;
                         }))));
 
