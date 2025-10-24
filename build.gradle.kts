@@ -7,18 +7,20 @@ group = "dev.booky"
 version = "2.0.0"
 
 repositories {
-    maven("https://repo.destroystokyo.com/repository/maven-public/")
-    maven("https://nexus.velocitypowered.com/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
-    api("com.velocitypowered:velocity-api:1.1.8")
-    annotationProcessor("com.velocitypowered:velocity-api:1.1.8")
+    compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+    annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 }
 
 java {
     withSourcesJar()
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        vendor = JvmVendorSpec.ADOPTIUM
+    }
 }
 
 publishing {
@@ -44,5 +46,10 @@ tasks {
     compileJava {
         dependsOn(processSources)
         source = fileTree(project.layout.buildDirectory.dir("src"))
+
+        options.encoding = Charsets.UTF_8.name()
+        options.compilerArgs.add("-Xlint:unchecked")
+        options.compilerArgs.add("-Xlint:deprecation")
+        options.compilerArgs.add("-Xlint:removal")
     }
 }
