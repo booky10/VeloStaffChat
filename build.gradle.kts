@@ -23,13 +23,13 @@ java {
 
 publishing {
     publications.create<MavenPublication>("maven") {
-        artifactId = project.name.toLowerCase()
+        artifactId = project.name.lowercase()
         from(components["java"])
     }
 }
 
 tasks {
-    val processSources = create<Sync>("processSources") {
+    val processSources = register<Sync>("processSources") {
         from(sourceSets.main.get().java.srcDirs)
 
         sourceSets.main.get().java.srcDirs.forEach(inputs::dir)
@@ -38,11 +38,11 @@ tasks {
         filesMatching("**/*.java") {
             expand("version" to project.version)
         }
-        into("$buildDir/src")
+        into(project.layout.buildDirectory.dir("src"))
     }
 
     compileJava {
         dependsOn(processSources)
-        source = fileTree("$buildDir/src")
+        source = fileTree(project.layout.buildDirectory.dir("src"))
     }
 }
