@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.TextColor;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -18,8 +17,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static dev.booky.staff.util.StaffChatConstants.PREFIX;
 import static dev.booky.staff.util.StaffChatConstants.STAFF_SEE_PERMISSION;
-import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.BLUE;
 import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
@@ -33,13 +32,6 @@ public final class StaffChatManager {
 
     private static final String FALLBACK_SERVER_NAME = "limbo";
     private static final String FALLBACK_USER_NAME = "console";
-
-    private static final Component PREFIX = text().color(WHITE)
-            .append(text('[', GRAY))
-            .append(text("Staff", TextColor.color(0x216844)))
-            .append(text(']', GRAY))
-            .append(space())
-            .build();
 
     private final Set<UUID> toggledChat = ConcurrentHashMap.newKeySet();
 
