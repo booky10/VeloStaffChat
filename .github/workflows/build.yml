@@ -4,36 +4,31 @@ on: [ push, pull_request ]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: "!contains(github.event.head_commit.message, 'skip ci') && !contains(github.event.head_commit.message, 'ci skip')"
 
     strategy:
       matrix:
-        java: [ 17 ]
+        java: [ 21 ]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
 
     - name: Set up JDK ${{ matrix.java }}
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v5
       with:
         java-version: "${{ matrix.java }}"
         distribution: 'temurin'
+        cache: 'gradle'
 
-    - uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-          .gradle/caches
-        key: ${{ runner.os }}-gradle-JDK${{ matrix.java }}-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-        restore-keys: ${{ runner.os }}-JDK${{ matrix.java }}-gradle-
+    - name: Validate Gradle wrapper
+      uses: gradle/actions/wrapper-validation@v5
 
     - name: Build with Gradle
       run: ./gradlew clean build --no-daemon
 
-    - name: Artifact Upload
-      uses: actions/upload-artifact@v3.0.0
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
       with:
-        name: "VeloStaffChat-JDK${{ matrix.java }}"
+        name: VeloStaffChat
         path: build/libs
