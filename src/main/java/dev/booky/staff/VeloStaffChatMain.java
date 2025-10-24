@@ -13,9 +13,12 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.booky.staff.listener.ChatListener;
 import dev.booky.staff.listener.NotifyListener;
+import dev.booky.staff.util.StaffChatConstants;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 
+@NullMarked
 @Plugin(
         id = "velostaffchat",
         name = "VeloStaffChat",
@@ -28,9 +31,11 @@ public class VeloStaffChatMain {
     private final ProxyServer server;
 
     @Inject
-    @SuppressWarnings("unused")
-    public VeloStaffChatMain(ProxyServer server, Logger logger) {
-        this.manager = new StaffChatManager(server);
+    public VeloStaffChatMain(
+            StaffChatManager manager,
+            ProxyServer server
+    ) {
+        this.manager = manager;
         this.server = server;
     }
 
@@ -48,6 +53,7 @@ public class VeloStaffChatMain {
                             return 1;
                         }))
                 .then(RequiredArgumentBuilder.<CommandSource, String>argument("text", StringArgumentType.greedyString())
+                        .requires(source -> source.hasPermission(StaffChatConstants.STAFF_USE_PERMISSION))
                         .executes(context -> {
                             manager.sendStaffMessage(context.getSource(), StringArgumentType.getString(context, "text"));
                             return 1;
@@ -55,13 +61,5 @@ public class VeloStaffChatMain {
 
         server.getEventManager().register(this, new ChatListener(manager));
         server.getEventManager().register(this, new NotifyListener(manager));
-    }
-
-    public StaffChatManager getManager() {
-        return manager;
-    }
-
-    public ProxyServer getServer() {
-        return server;
     }
 }

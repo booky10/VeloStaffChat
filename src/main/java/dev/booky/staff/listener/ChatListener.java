@@ -4,21 +4,40 @@ package dev.booky.staff.listener;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import dev.booky.staff.StaffChatManager;
+import org.jspecify.annotations.NullMarked;
 
-public record ChatListener(StaffChatManager manager) {
+import static dev.booky.staff.util.StaffChatConstants.MESSAGE_PREFIX;
+import static dev.booky.staff.util.StaffChatConstants.STAFF_USE_PERMISSION;
+
+@NullMarked
+public final class ChatListener {
+
+    private final StaffChatManager manager;
+
+    public ChatListener(StaffChatManager manager) {
+        this.manager = manager;
+    }
 
     @Subscribe
     public void onChat(PlayerChatEvent event) {
-        if (!event.getPlayer().hasPermission("staff.chat")) return;
-
-        String message = event.getMessage();
-        if (message.startsWith("#")) {
-            message = message.substring(1).trim();
-        } else if (!manager.hasToggledStaffChat(event.getPlayer().getUniqueId())) {
-            return;
+        if (!event.getPlayer().hasPermission(STAFF_USE_PERMISSION)) {
+            return; // doesn't have permission, ignore
         }
 
+        String input = event.getMessage();
+        String message;
+        if (!input.isEmpty() && input.charAt(0) == MESSAGE_PREFIX) {
+            // send message to staff chat
+            message = input.substring(1).trim();
+        } else if (this.manager.hasToggledStaffChat(event.getPlayer().getUniqueId())) {
+            // send whole message to staff chat, player has staff chat always enabled
+            message = input;
+        } else {
+            return; // don't send staff message
+        }
+
+        // deny sending message normally and send to staff chat
         event.setResult(PlayerChatEvent.ChatResult.denied());
-        manager.sendStaffMessage(event.getPlayer(), message);
+        this.manager.sendStaffMessage(event.getPlayer(), message);
     }
 }

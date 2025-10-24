@@ -6,6 +6,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.ServerInfo;
+import jakarta.inject.Inject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
@@ -16,7 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static dev.booky.staff.util.PermissionConstants.STAFF_SEE_PERMISSION;
+import static dev.booky.staff.util.StaffChatConstants.STAFF_SEE_PERMISSION;
 import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.BLUE;
@@ -41,6 +42,7 @@ public final class StaffChatManager {
     private final Set<UUID> toggledChat = new HashSet<>();
     private final ProxyServer server;
 
+    @Inject
     public StaffChatManager(ProxyServer server) {
         this.server = server;
     }

@@ -8,27 +8,45 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import dev.booky.staff.StaffChatManager;
+import org.jspecify.annotations.NullMarked;
 
-import java.util.Optional;
+import static dev.booky.staff.util.StaffChatConstants.STAFF_NOTIFY_PERMISSION;
 
-public record NotifyListener(StaffChatManager manager) {
+@NullMarked
+public class NotifyListener {
+
+    private final StaffChatManager manager;
+
+    public NotifyListener(StaffChatManager manager) {
+        this.manager = manager;
+    }
 
     @Subscribe
     public void onServerSwitch(ServerConnectedEvent event) {
-        if (!event.getPlayer().hasPermission("staff.notify")) return;
+        if (!event.getPlayer().hasPermission(STAFF_NOTIFY_PERMISSION)) {
+            return;
+        }
 
-        String from = event.getPreviousServer().map(RegisteredServer::getServerInfo).map(ServerInfo::getName).orElse(null);
+        String username = event.getPlayer().getUsername();
+        String from = event.getPreviousServer()
+                .map(RegisteredServer::getServerInfo)
+                .map(ServerInfo::getName)
+                .orElse(null);
         String to = event.getServer().getServerInfo().getName();
-
-        manager.sendServerSwitch(event.getPlayer().getUsername(), from, to);
+        this.manager.sendServerSwitch(username, from, to);
     }
 
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
-        if (!event.getPlayer().hasPermission("staff.notify")) return;
+        if (!event.getPlayer().hasPermission(STAFF_NOTIFY_PERMISSION)) {
+            return;
+        }
 
-        Optional<ServerConnection> currServer = event.getPlayer().getCurrentServer();
-        String name = currServer.map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse(null);
-        manager.sendServerSwitch(event.getPlayer().getUsername(), name, null);
+        String username = event.getPlayer().getUsername();
+        String serverName = event.getPlayer().getCurrentServer()
+                .map(ServerConnection::getServerInfo)
+                .map(ServerInfo::getName)
+                .orElse(null);
+        this.manager.sendServerSwitch(username, serverName, null);
     }
 }

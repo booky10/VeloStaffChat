@@ -4,12 +4,14 @@ package dev.booky.staff.util;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public final class PermissionConstants {
+public final class StaffChatConstants {
 
-    public static final String STAFF_USE_PERMISSION = "staff.use";
+    public static final String STAFF_USE_PERMISSION = "staff.chat";
     public static final String STAFF_SEE_PERMISSION = "staff.see";
     public static final String STAFF_NOTIFY_PERMISSION = "staff.notify";
 
-    private PermissionConstants() {
+    public static final char MESSAGE_PREFIX = '#';
+
+    private StaffChatConstants() {
     }
 }
